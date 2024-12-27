@@ -49,7 +49,7 @@ async def write_avro_files(
 
 @async_timed()
 async def read_avro_file(file: pathlib.Path):
-    """Read Avro file and return the records.
+    """Read Avro file and return the records. Execute the blocking operation in another thread by asyncio.to_thread.
 
     Args:
         file: The file path to read the Avro file.
@@ -62,8 +62,8 @@ async def read_avro_file(file: pathlib.Path):
     def sync_read_avro_file(file: pathlib.Path) -> list[AvroMessage]:
         """Synchronously reads all records from an Avro file."""
         with open(file, "rb") as fo:
-            avro_reader = reader(fo)
-            records = [record for record in avro_reader]
+            avro_reader = reader(fo)  # blocking IO-bound operation
+            records = [record for record in avro_reader]  # CPU-bound operation
         return records
 
     # Use asyncio.to_thread to offload the blocking operation to a thread
@@ -73,10 +73,18 @@ async def read_avro_file(file: pathlib.Path):
 
 @async_timed()
 async def read_avro_file_v2(file: pathlib.Path):
+    """Read Avro file and return the records. Execute by using aiofiles.
+
+    Args:
+        file: The file path to read the Avro file.
+
+    Returns:
+        The list of records.
+    """
     await asyncio.sleep(3)
     async with aiofiles.open(file, mode="rb") as fo:
         # `aiofiles` doesn't work with fastavro directly, so read the file into memory
-        byte_content = await fo.read()
+        byte_content = await fo.read()  # non-blocking IO-bound operation
         avro_reader = reader(BytesIO(byte_content))  # CPU-bound operation
     content = list(avro_reader)
     return content
