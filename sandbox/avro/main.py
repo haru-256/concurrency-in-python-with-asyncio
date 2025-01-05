@@ -27,6 +27,7 @@ async def write_avro_file(
         await asyncio.to_thread(writer, f, schema, records)
 
 
+@async_timed()
 async def write_avro_files(
     args: list[tuple[pathlib.Path, Schema, list[dict[str, Any]]]],
 ):
@@ -90,6 +91,7 @@ async def read_avro_file_v2(file: pathlib.Path):
     return content
 
 
+@async_timed()
 async def read_avro_files(files: list[pathlib.Path]) -> list[list[AvroMessage]]:
     """Read Avro files and return the records
 

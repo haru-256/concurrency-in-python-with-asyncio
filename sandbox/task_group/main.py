@@ -46,8 +46,8 @@ async def run_by_task_group() -> None:
 
 def main():
     # asyncio.run(run_by_gather())
-    # asyncio.run(run_by_task_group())
-    asyncio.run(run_by_task())
+    asyncio.run(run_by_task_group())
+    # asyncio.run(run_by_task())
 
 
 if __name__ == "__main__":
